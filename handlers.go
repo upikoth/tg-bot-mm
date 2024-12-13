@@ -11,6 +11,11 @@ import (
 )
 
 func (s *service) handleMessages() error {
+	if s.isNotify {
+		log.Println("Уведомление")
+		return s.notifyOnCallEngineer()
+	}
+
 	if !strings.HasPrefix(s.update.Message.Text, "/") {
 		log.Printf("Received unexpected message: %s", s.update.Message.Text)
 		return nil
@@ -48,32 +53,24 @@ func (s *service) handleMessages() error {
 }
 
 func (s *service) onCallEngineerHandler() error {
-	engineers, err := s.db.Engineers.GetList(s.r.Context())
+	onCallEngineer, err := s.getOnCallEngineerTelegramName()
 
 	if err != nil {
 		return err
 	}
 
-	if len(engineers) == 0 {
+	if onCallEngineer == "" {
 		_, err = s.bot.SendMessage(s.r.Context(), &bot.SendMessageParams{
 			ChatID:          s.update.Message.Chat.ID,
 			MessageThreadID: s.update.Message.MessageThreadID,
 			Text:            "Список дежурных пуст, сначала нужно его заполнить",
 		})
-
 		if err != nil {
 			return err
 		}
 
 		return nil
 	}
-
-	tgNames := make([]string, 0, len(engineers))
-	for _, e := range engineers {
-		tgNames = append(tgNames, e.TelegramUsername)
-	}
-
-	onCallEngineer := tgNames[time.Now().YearDay()%len(tgNames)]
 
 	_, err = s.bot.SendMessage(s.r.Context(), &bot.SendMessageParams{
 		ChatID:          s.update.Message.Chat.ID,
@@ -86,6 +83,59 @@ func (s *service) onCallEngineerHandler() error {
 	}
 
 	return nil
+}
+
+func (s *service) notifyOnCallEngineer() error {
+	onCallEngineer, err := s.getOnCallEngineerTelegramName()
+
+	if err != nil {
+		return err
+	}
+
+	if onCallEngineer == "" {
+		_, err = s.bot.SendMessage(s.r.Context(), &bot.SendMessageParams{
+			ChatID: s.cfg.NotificationChatID,
+			Text:   "Список дежурных пуст, нужно его заполнить",
+		})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	_, err = s.bot.SendMessage(s.r.Context(), &bot.SendMessageParams{
+		ChatID: s.cfg.NotificationChatID,
+		Text:   fmt.Sprintf("Сегодня дежурит %s", onCallEngineer),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) getOnCallEngineerTelegramName() (string, error) {
+	engineers, err := s.db.Engineers.GetList(s.r.Context())
+
+	if err != nil {
+		return "", err
+	}
+
+	if len(engineers) == 0 {
+		return "", nil
+	}
+
+	tgNames := make([]string, 0, len(engineers))
+	for _, e := range engineers {
+		tgNames = append(tgNames, e.TelegramUsername)
+	}
+
+	onCallEngineer := tgNames[time.Now().YearDay()%len(tgNames)]
+
+	return onCallEngineer, nil
 }
 
 func (s *service) listOfEngineersHandler() error {

@@ -14,11 +14,13 @@ import (
 )
 
 type service struct {
-	r      *http.Request
-	w      http.ResponseWriter
-	bot    *bot.Bot
-	db     *db.DB
-	update *models.Update
+	r        *http.Request
+	w        http.ResponseWriter
+	bot      *bot.Bot
+	db       *db.DB
+	update   *models.Update
+	cfg      *config.Config
+	isNotify bool
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -81,22 +83,35 @@ func newService(
 
 	log.Println("Request body: ", string(body))
 
-	var update models.Update
-	err = json.Unmarshal(body, &update)
-	if err != nil {
-		return nil, err
-	}
+	var (
+		update   models.Update
+		isNotify bool
+	)
 
-	if update.Message == nil {
-		return nil, errors.New("message is empty")
+	if len(body) != 0 {
+		err = json.Unmarshal(body, &update)
+		if err != nil {
+			return nil, err
+		}
+
+		if update.Message == nil {
+			return nil, errors.New("message is empty")
+		}
+	} else {
+		// Когда функция вызывается с помощью триггера у нее нельзя передать body
+		// поэтому это будет признаком, что нужно уведомить пользователя
+		// в других случаях функция должна всегда вызываться с body
+		isNotify = true
 	}
 
 	return &service{
-		r:      r,
-		w:      w,
-		bot:    b,
-		db:     ydb,
-		update: &update,
+		r:        r,
+		w:        w,
+		bot:      b,
+		db:       ydb,
+		update:   &update,
+		cfg:      cfg,
+		isNotify: isNotify,
 	}, nil
 }
 
