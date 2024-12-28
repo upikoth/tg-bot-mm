@@ -7,7 +7,8 @@ type Config struct {
 	AuthFileDirName    string `envconfig:"YDB_AUTH_FILE_DIR_NAME" required:"true"`
 	AuthFileName       string `envconfig:"YDB_AUTH_FILE_NAME" required:"true"`
 	Dsn                string `envconfig:"YDB_DSN" required:"true"`
-	NotificationChatID string `envconfig:"NOTIFICATION_CHAT_ID" required:"true"`
+	NotificationChatID int64  `envconfig:"NOTIFICATION_CHAT_ID" required:"true"`
+	Port               string `envconfig:"PORT" required:"true"`
 }
 
 func New() (*Config, error) {

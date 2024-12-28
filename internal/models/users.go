@@ -1,5 +1,5 @@
 package models
 
-type Engineer struct {
+type User struct {
 	TelegramUsername string
 }
