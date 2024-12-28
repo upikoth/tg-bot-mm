@@ -1,18 +1,18 @@
 package db
 
 import (
-	"github.com/upikoth/tg-bot-mm/internal/constants"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"os"
 
 	"github.com/pkg/errors"
 	"github.com/upikoth/tg-bot-mm/internal/config"
+	"github.com/upikoth/tg-bot-mm/internal/constants"
 	"github.com/upikoth/tg-bot-mm/internal/pkg/logger"
 	"github.com/upikoth/tg-bot-mm/internal/repositories/db/dbmodels"
 	"github.com/upikoth/tg-bot-mm/internal/repositories/db/users"
 	ydb "github.com/ydb-platform/gorm-driver"
 	environ "github.com/ydb-platform/ydb-go-sdk-auth-environ"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type DB struct {

@@ -17,13 +17,13 @@ func (c *MessageManager) SendListOfUsers(
 	users, err := c.users.GetList(ctx)
 
 	if errors.Is(err, constants.ErrEntityNotFound) {
-		_, err = c.tgBot.SendMessage(ctx, &bot.SendMessageParams{
+		_, sendErr := c.tgBot.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID:          chatID,
 			MessageThreadID: threadID,
 			Text:            "Список дежурных пуст",
 		})
 
-		return nil
+		return sendErr
 	}
 
 	if err != nil {

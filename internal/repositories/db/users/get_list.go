@@ -12,7 +12,7 @@ import (
 func (u *Users) GetList(
 	ctx context.Context,
 ) (res []models.User, err error) {
-	users := []dbmodels.User{}
+	var users []dbmodels.User
 
 	dbRes := u.db.
 		WithContext(ctx).

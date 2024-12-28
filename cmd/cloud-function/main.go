@@ -1,4 +1,4 @@
-package cloud_function
+package main
 
 import (
 	"net/http"
