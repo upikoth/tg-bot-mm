@@ -145,7 +145,7 @@ func (s *service) listOfEngineersHandler() error {
 		return err
 	}
 
-	tgNames := make([]string, len(engineers))
+	tgNames := make([]string, 0, len(engineers))
 	for _, e := range engineers {
 		tgNames = append(tgNames, e.TelegramUsername)
 	}
@@ -153,7 +153,7 @@ func (s *service) listOfEngineersHandler() error {
 	_, err = s.bot.SendMessage(s.r.Context(), &bot.SendMessageParams{
 		ChatID:          s.update.Message.Chat.ID,
 		MessageThreadID: s.update.Message.MessageThreadID,
-		Text:            "Полный список дежурных:" + strings.Join(tgNames, "\n"),
+		Text:            "Полный список дежурных:\n\n" + strings.Join(tgNames, "\n"),
 	})
 
 	if err != nil {
