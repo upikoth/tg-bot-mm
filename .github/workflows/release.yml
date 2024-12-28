@@ -25,11 +25,13 @@ jobs:
       - uses: yc-actions/yc-sls-function@v2
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          folder-id: 'b1g2l27mgta22ibfjk5n'
+          folder-id: ${{ vars.YC_FOLDER_ID }}
           function-name: 'tg-bot-mm'
           runtime: 'golang121'
           memory: '128Mb'
           entrypoint: 'cmd/cloud-function/main.Handler'
+          service-account: ${{ vars.YC_SERVICE_ACCOUNT_ID }}
+          logs-group-id: ${{ vars.YC_LOG_GROUP_ID }}
           environment: |
             BOT_TOKEN=${{ secrets.BOT_TOKEN }}
             DATABASE_TYPE=${{ vars.DATABASE_TYPE }}
