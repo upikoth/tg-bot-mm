@@ -2,11 +2,11 @@ package messagemanager
 
 import (
 	"context"
+	"strings"
 
 	"github.com/go-telegram/bot"
 	"github.com/pkg/errors"
 	"github.com/upikoth/tg-bot-mm/internal/constants"
-	"strings"
 )
 
 func (c *MessageManager) SendListOfUsers(
