@@ -1,6 +1,9 @@
 package db
 
 import (
+	"github.com/upikoth/tg-bot-mm/internal/constants"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"os"
 
 	"github.com/pkg/errors"
@@ -10,7 +13,6 @@ import (
 	"github.com/upikoth/tg-bot-mm/internal/repositories/db/users"
 	ydb "github.com/ydb-platform/gorm-driver"
 	environ "github.com/ydb-platform/ydb-go-sdk-auth-environ"
-	"gorm.io/gorm"
 )
 
 type DB struct {
@@ -35,6 +37,17 @@ func New(
 }
 
 func (y *DB) Connect() error {
+	switch constants.DatabaseType(y.config.DatabaseType) {
+	case constants.DatabaseTypeSqlite:
+		return y.ConnectToSqlite()
+	case constants.DatabaseTypeYDB:
+		return y.ConnectToYDB()
+	default:
+		return errors.Errorf("unsupported database type: %s", y.config.DatabaseType)
+	}
+}
+
+func (y *DB) ConnectToYDB() error {
 	filePath := y.config.AuthFileDirName + "/" + y.config.AuthFileName
 	err := os.Setenv("YDB_SERVICE_ACCOUNT_KEY_FILE_CREDENTIALS", filePath)
 
@@ -44,6 +57,20 @@ func (y *DB) Connect() error {
 
 	db, err := gorm.Open(
 		ydb.Open(y.config.Dsn, ydb.With(environ.WithEnvironCredentials())),
+	)
+
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	*y.db = *db
+
+	return y.AutoMigrate()
+}
+
+func (y *DB) ConnectToSqlite() error {
+	db, err := gorm.Open(
+		sqlite.Open("database.db"),
 	)
 
 	if err != nil {

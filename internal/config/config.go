@@ -9,6 +9,7 @@ type Config struct {
 	Dsn                string `envconfig:"YDB_DSN" required:"true"`
 	NotificationChatID int64  `envconfig:"NOTIFICATION_CHAT_ID" required:"true"`
 	Port               string `envconfig:"PORT" required:"true"`
+	DatabaseType       string `envconfig:"DATABASE_TYPE" required:"true"`
 }
 
 func New() (*Config, error) {
