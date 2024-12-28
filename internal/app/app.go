@@ -70,6 +70,10 @@ func (s *App) Start(_ context.Context) error {
 	return s.controller.Start()
 }
 
+func (s *App) ConnectToRepositories() error {
+	return s.repositories.Connect()
+}
+
 func (s *App) Stop(ctx context.Context) error {
 	err := s.repositories.Disconnect()
 

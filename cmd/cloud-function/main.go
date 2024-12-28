@@ -30,9 +30,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	appInstance, err := app.New(cfg, loggerInstance)
 	if err != nil {
 		loggerInstance.Fatal(err.Error())
+		return
 	}
 
 	if appInstance != nil {
+		dbErr := appInstance.ConnectToRepositories()
+
+		if dbErr != nil {
+			loggerInstance.Fatal(dbErr.Error())
+			return
+		}
+
 		appInstance.MainHandler(w, r)
 	}
 }
